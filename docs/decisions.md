@@ -56,6 +56,14 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - **Tests run the real migrations** against an embedded PostgreSQL 17 (`io.zonky.test:embedded-postgres`, test scope only), so no Docker or Neon account is needed to verify the schema locally or in CI.
 - **Product images** are `placehold.co` placeholder URLs for now.
 
+## D12. Neon setup and how migrations are applied (2026-10-22)
+- **Neon project:** `ip shopping cart` (`winter-violet-14112139`), AWS Singapore, free plan, PostgreSQL 18.6.
+- **Branches:** `production` (default, not migrated yet, reserved for the deployed app) and `dev` (`br-quiet-dream-aobzl4bt`, migrated: V1 and V2 applied, 3 categories and 15 products verified).
+- **Direct connection only.** The connector hands out the pooled `-pooler` host; the `.env` helper rejects it and the direct host (same name without `-pooler`) is used, with `sslmode=require` and no `channel_binding` option.
+- **Credentials** live only in the git-ignored `.env`. The repo is public, so they are never committed or written into docs.
+- **Migrations are applied with the Flyway Maven plugin** (`./mvnw flyway:info flyway:migrate`, connection from `FLYWAY_URL`, `FLYWAY_USER`, `FLYWAY_PASSWORD`) because the app has no JDBC starter yet, so Spring Boot does not run Flyway at startup. Once JPA is added in Phase 4 the app will migrate on startup as well.
+- **Version gap:** Neon runs PostgreSQL 18; Flyway 11.7.2 (managed by Boot 3.5.16) is tested up to 17 and prints a warning but works. The tests use PostgreSQL 17.
+
 ## Open
 - **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
 - **Low-stock threshold:** the seed uses stock 1 to 5 as "low"; confirm the value in Phase 7.
