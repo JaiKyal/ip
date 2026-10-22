@@ -16,7 +16,7 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [x] Pushed to GitHub (public): https://github.com/JaiKyal/ip, `main` in sync with local
 - [x] `.gitattributes` keeps `mvnw` and Dockerfile on LF; `mvnw` stored as executable
 - [x] Secrets sweep over all history: clean (placeholders only)
-- [x] GitHub Actions workflow runs `./mvnw -B verify`
+- [x] GitHub Actions workflow runs `./mvnw -B verify`; first run on commit f011b41 passed on Linux
 - [x] Static progress tracker page in `frontend/` (not yet deployed on Vercel)
 
 ## In progress
@@ -37,6 +37,6 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [ ] Create Neon account and project
 - [ ] Import `JaiKyal/ip` on https://vercel.com/new with Root Directory `frontend` (connector returned 403)
 - [ ] Choose deployment shape (decisions.md D9)
-- [ ] Create Render account; confirm GitHub Actions run is green on the Actions tab
+- [ ] Create Render account
 - [ ] Install Docker Desktop to test the Dockerfile locally (not installed yet)
 - [ ] Install Postman or Bruno
