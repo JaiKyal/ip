@@ -21,7 +21,7 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [x] Static progress tracker page in `frontend/` (not yet deployed on Vercel)
 
 ## In progress
-- [ ] Phase 3: Flyway + PostgreSQL driver added to the pom; gitignored `application-local.properties` created with placeholders only. Next: V1 schema migration, then Neon connection (needs the student's credentials)
+- [ ] Phase 3 (partly done): Flyway + driver in the pom, `application-local.properties` (git-ignored, placeholders), `V1__schema.sql`, `V2__seed_catalog.sql`, and 14 migration tests passing on a real PostgreSQL 17. Remaining: connect to Neon (needs the student's credentials) and run the migrations there
 - [ ] Phase 2 leftover: build the Dockerfile locally (needs Docker Desktop; untested)
 
 ## Pending

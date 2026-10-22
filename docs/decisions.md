@@ -47,7 +47,16 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - Commit author metadata contains a personal email address. Consider switching to the GitHub `noreply` address for future commits.
 - CI (`.github/workflows/ci.yml`) runs `./mvnw -B verify` on every push and pull request. `backend/mvnw` is stored with the executable bit (mode 100755) so it runs on the Linux runner.
 
+## D11. Schema choices in V1 (2026-10-22)
+- **payments table kept.** It is cheap, matches the brief, and gives each simulated payment a unique `transaction_reference`. `orders.payment_status` is still the value revenue queries use.
+- **Idempotency:** `orders.idempotency_key` with `UNIQUE (user_id, idempotency_key)`. A double-clicked checkout carries the same key, so the second insert fails instead of creating a second order. Orders without a key are allowed.
+- **Constraints in the database, not only in Java:** `stock_quantity >= 0`, `price >= 0`, `quantity > 0`, status and role value lists, `line_total = unit_price * quantity`, case-insensitive unique email. Even a buggy service cannot store an oversold or negative state.
+- **Delete rules:** `order_items.product_id` has no cascade, so a sold product cannot be hard-deleted (matches D5). Deleting a user removes their cart; orders are never cascaded away.
+- **Seed data lives in a migration (V2)** because the catalog is demo data. Users and the admin are not seeded there (no password hashes in git); the admin comes from `ADMIN_EMAIL` / `ADMIN_PASSWORD` at startup in Phase 5.
+- **Tests run the real migrations** against an embedded PostgreSQL 17 (`io.zonky.test:embedded-postgres`, test scope only), so no Docker or Neon account is needed to verify the schema locally or in CI.
+- **Product images** are `placehold.co` placeholder URLs for now.
+
 ## Open
 - **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
-- **payments table:** optional (see D8 notes); decide in Phase 3 when writing the schema.
+- **Low-stock threshold:** the seed uses stock 1 to 5 as "low"; confirm the value in Phase 7.
 - **payments table:** optional. If time is short, keep `payment_status` on `orders` only.

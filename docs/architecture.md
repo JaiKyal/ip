@@ -96,6 +96,7 @@ erDiagram
              numeric total_amount
              varchar payment_status
              varchar payment_method
+             varchar idempotency_key
              timestamptz order_date }
     ORDER_ITEMS { bigint id PK
                   bigint order_id FK
