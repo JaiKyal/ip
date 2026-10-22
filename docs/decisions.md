@@ -37,10 +37,10 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 ## D9. Where each part is hosted: Vercel and single vs two deployments (2026-10-22)
 - **Fact:** Vercel hosts static files and serverless functions. It cannot run the Spring Boot jar, so the backend stays on a container host (Render web service via `backend/Dockerfile`).
 - **Now:** Vercel serves only `frontend/`, which currently holds a static progress-tracker page (`frontend/index.html`). Project root directory on Vercel = `frontend`, no build command. The repo is connected through https://vercel.com/new (the connector got a 403 when asked to create the project).
-- **Not yet decided (needs the student's choice):**
-  - **Option A, two sites:** static frontend on Vercel or Render Static, API on Render. Needs CORS (`CORS_ALLOWED_ORIGINS`) and the API URL configured in `api.js`. Matches the original brief.
-  - **Option B, one service:** copy `frontend/` into Spring Boot's `static/` at build time (customer at `/`, admin at `/admin`). No CORS, one Render service, Vercel only for the tracker or not at all.
-- **Working assumption until chosen:** Option A. JWT in the header (D2) works for both, so no code depends on the choice yet.
+- **Decided by the student on 2026-10-22: Option A, two sites.** The frontend is a separate static site and the API is its own Render web service.
+  - **Consequences:** the backend needs CORS driven by `CORS_ALLOWED_ORIGINS` (exact origins, no wildcard, since requests carry an `Authorization` header); the frontend reads the API base URL from a single constant in `api.js`; JWT in the header (D2) avoids cross-site cookie problems.
+  - **Frontend host:** Vercel or Render Static, either works because the frontend is plain static files. Pick when deploying in Phase 9. The Vercel import of `frontend/` stays as it is.
+- **Rejected, Option B (one service):** copying `frontend/` into Spring Boot's `static/` would remove CORS and one service, but it merges the two deployments the original brief asked to keep separate. It remains a fallback if CORS causes trouble near the demo.
 
 ## D10. Repository is public (checked 2026-10-22)
 - `github.com/JaiKyal/ip` is public. History was scanned for secrets: none found; `.env.example` holds placeholders only.
@@ -48,5 +48,6 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - CI (`.github/workflows/ci.yml`) runs `./mvnw -B verify` on every push and pull request. `backend/mvnw` is stored with the executable bit (mode 100755) so it runs on the Linux runner.
 
 ## Open
-- **Deployment shape:** see D9, needs the student's choice by Phase 9.
+- **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
+- **payments table:** optional (see D8 notes); decide in Phase 3 when writing the schema.
 - **payments table:** optional. If time is short, keep `payment_status` on `orders` only.
