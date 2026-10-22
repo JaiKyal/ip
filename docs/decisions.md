@@ -34,6 +34,19 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - **Chose:** Web, Validation, Actuator only. JPA, Flyway, PostgreSQL driver arrive in Phase 3; Security in Phase 5.
 - **Why:** JPA without a database fails at startup, and Security would lock the health endpoint before auth exists.
 
+## D9. Where each part is hosted: Vercel and single vs two deployments (2026-10-22)
+- **Fact:** Vercel hosts static files and serverless functions. It cannot run the Spring Boot jar, so the backend stays on a container host (Render web service via `backend/Dockerfile`).
+- **Now:** Vercel serves only `frontend/`, which currently holds a static progress-tracker page (`frontend/index.html`). Project root directory on Vercel = `frontend`, no build command. The repo is connected through https://vercel.com/new (the connector got a 403 when asked to create the project).
+- **Not yet decided (needs the student's choice):**
+  - **Option A, two sites:** static frontend on Vercel or Render Static, API on Render. Needs CORS (`CORS_ALLOWED_ORIGINS`) and the API URL configured in `api.js`. Matches the original brief.
+  - **Option B, one service:** copy `frontend/` into Spring Boot's `static/` at build time (customer at `/`, admin at `/admin`). No CORS, one Render service, Vercel only for the tracker or not at all.
+- **Working assumption until chosen:** Option A. JWT in the header (D2) works for both, so no code depends on the choice yet.
+
+## D10. Repository is public (checked 2026-10-22)
+- `github.com/JaiKyal/ip` is public. History was scanned for secrets: none found; `.env.example` holds placeholders only.
+- Commit author metadata contains a personal email address. Consider switching to the GitHub `noreply` address for future commits.
+- CI (`.github/workflows/ci.yml`) runs `./mvnw -B verify` on every push and pull request. `backend/mvnw` is stored with the executable bit (mode 100755) so it runs on the Linux runner.
+
 ## Open
-- **Deployment shape:** two Render sites (static + API, needs CORS) or one service serving `static/` (no CORS). Decide in Phase 9; JWT works with both.
+- **Deployment shape:** see D9, needs the student's choice by Phase 9.
 - **payments table:** optional. If time is short, keep `payment_status` on `orders` only.

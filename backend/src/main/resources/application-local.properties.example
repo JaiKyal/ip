@@ -1,0 +1,8 @@
+# Template for application-local.properties (which is git-ignored).
+# Copy this file to application-local.properties. It only references environment variables,
+# so no secrets belong in either file.
+
+spring.flyway.enabled=true
+spring.flyway.url=${DB_URL}
+spring.flyway.user=${DB_USERNAME}
+spring.flyway.password=${DB_PASSWORD}

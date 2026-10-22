@@ -5,6 +5,9 @@
 *.pem
 *.key
 
+# Local Spring profile (machine-specific settings; never commit)
+application-local.properties
+
 # Build output
 target/
 build/

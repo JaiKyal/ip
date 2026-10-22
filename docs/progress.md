@@ -13,7 +13,14 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [x] Phase 2: Spring Boot 3.5.16 project in `backend/`, `mvnw.cmd test` passes, packaged jar answers `/actuator/health` with `UP`
 - [x] `backend/Dockerfile` (multi-stage, `-Xmx350m`) written
 
+- [x] Pushed to GitHub (public): https://github.com/JaiKyal/ip, `main` in sync with local
+- [x] `.gitattributes` keeps `mvnw` and Dockerfile on LF; `mvnw` stored as executable
+- [x] Secrets sweep over all history: clean (placeholders only)
+- [x] GitHub Actions workflow runs `./mvnw -B verify`
+- [x] Static progress tracker page in `frontend/` (not yet deployed on Vercel)
+
 ## In progress
+- [ ] Phase 3: Flyway + PostgreSQL driver added to the pom; gitignored `application-local.properties` created with placeholders only. Next: V1 schema migration, then Neon connection (needs the student's credentials)
 - [ ] Phase 2 leftover: build the Dockerfile locally (needs Docker Desktop; untested)
 
 ## Pending
@@ -28,6 +35,8 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 
 ## Blocked / needs the student
 - [ ] Create Neon account and project
-- [ ] Create GitHub and Render accounts
+- [ ] Import `JaiKyal/ip` on https://vercel.com/new with Root Directory `frontend` (connector returned 403)
+- [ ] Choose deployment shape (decisions.md D9)
+- [ ] Create Render account; confirm GitHub Actions run is green on the Actions tab
 - [ ] Install Docker Desktop to test the Dockerfile locally (not installed yet)
 - [ ] Install Postman or Bruno
