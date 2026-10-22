@@ -91,6 +91,16 @@ class ProductApiTest extends AbstractPostgresIntegrationTest {
     }
 
     @Test
+    void featuredOrderShowsBuyableProductsBeforeSoldOutOnes() throws Exception {
+        mockMvc.perform(get("/api/products").param("size", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].inStock").value(true))
+                .andExpect(jsonPath("$.items[14].name").value("USB-C Fast Charger 30W"))
+                .andExpect(jsonPath("$.items[14].inStock").value(false))
+                .andExpect(jsonPath("$.totalElements").value(15));
+    }
+
+    @Test
     void outOfStockProductsAreListedAndClearlyMarked() throws Exception {
         mockMvc.perform(get("/api/products").param("q", "USB-C"))
                 .andExpect(status().isOk())

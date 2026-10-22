@@ -122,7 +122,7 @@ class MigrationSchemaTest {
         long userId = insertUser("status@example.com");
         assertSqlState(CHECK_VIOLATION, () -> execute(
                 "INSERT INTO orders (order_number, user_id, status, subtotal, total_amount, payment_method) "
-                        + "VALUES ('ORD-BAD', " + userId + ", 'LOST_IN_SPACE', 10, 10, 'SIMULATED')"));
+                        + "VALUES ('ORD-BAD', " + userId + ", 'LOST_IN_SPACE', 10, 10, 'UPI')"));
     }
 
     @Test
@@ -168,11 +168,19 @@ class MigrationSchemaTest {
     }
 
     @Test
+    void unknownPaymentMethodIsRejected() throws SQLException {
+        long userId = insertUser("method@example.com");
+        assertSqlState(CHECK_VIOLATION, () -> execute(
+                "INSERT INTO orders (order_number, user_id, subtotal, total_amount, payment_method) "
+                        + "VALUES ('ORD-METHOD', " + userId + ", 10, 10, 'BITCOIN')"));
+    }
+
+    @Test
     void paymentReferenceIsUnique() throws SQLException {
         long userId = insertUser("pay@example.com");
         long orderId = insertOrder(userId, "ORD-PAY", null);
         String sql = "INSERT INTO payments (order_id, payment_method, payment_status, amount, transaction_reference) "
-                + "VALUES (" + orderId + ", 'SIMULATED', 'PAID', 10, 'SIM-123')";
+                + "VALUES (" + orderId + ", 'UPI', 'PAID', 10, 'SIM-123')";
         execute(sql);
         assertSqlState(UNIQUE_VIOLATION, () -> execute(sql));
     }
@@ -193,7 +201,7 @@ class MigrationSchemaTest {
     private long insertOrder(long userId, String orderNumber, String idempotencyKey) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO orders (order_number, user_id, subtotal, total_amount, payment_method, idempotency_key) "
-                        + "VALUES (?, ?, 100, 100, 'SIMULATED', ?) RETURNING id")) {
+                        + "VALUES (?, ?, 100, 100, 'UPI', ?) RETURNING id")) {
             ps.setString(1, orderNumber);
             ps.setLong(2, userId);
             ps.setString(3, idempotencyKey);

@@ -38,6 +38,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<ApiError> paymentFailed(PaymentFailedException ex, HttpServletRequest request) {
+        return build(HttpStatus.PAYMENT_REQUIRED, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(AuthenticationFailedException.class)
     public ResponseEntity<ApiError> loginFailed(AuthenticationFailedException ex, HttpServletRequest request) {
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
@@ -78,6 +83,7 @@ public class GlobalExceptionHandler {
         org.springframework.web.servlet.resource.NoResourceFoundException.class,
         org.springframework.web.HttpRequestMethodNotSupportedException.class,
         org.springframework.web.HttpMediaTypeNotSupportedException.class,
+        org.springframework.web.bind.ServletRequestBindingException.class,
         org.springframework.web.bind.MissingServletRequestParameterException.class,
         org.springframework.web.method.annotation.HandlerMethodValidationException.class
     })

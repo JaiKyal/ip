@@ -45,8 +45,8 @@
   <h1>Shopping Cart &amp; Order Management System</h1>
   <p class="sub">Java 21 &middot; Spring Boot &middot; PostgreSQL &middot; HTML/CSS/JS. College IP project, built in phases.</p>
 
-  <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="5" aria-label="Phases completed"><span style="width:50%"></span></div>
-  <div class="meta">5 of 10 phases complete &middot; last updated 2026-10-22</div>
+  <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="6" aria-label="Phases completed"><span style="width:60%"></span></div>
+  <div class="meta">6 of 10 phases complete &middot; last updated 2026-10-22 &middot; <a href="customer/index.html">Open the shop</a></div>
 
   <ol>
     <li><span class="num">1</span><div class="body"><div class="title">Requirements and architecture</div><div class="note">Architecture, ER diagram, checkout design, API plan.</div></div><span class="badge done">Done</span></li>
@@ -54,8 +54,8 @@
     <li><span class="num">3</span><div class="body"><div class="title">PostgreSQL on Neon, migrations, sample data</div><div class="note">Live on Neon: 8 tables with built-in safety constraints, 3 categories and 15 demo products. Schema tested on a real PostgreSQL.</div></div><span class="badge done">Done</span></li>
     <li><span class="num">4</span><div class="body"><div class="title">Entities, repositories, public product API</div><div class="note">Product list, search, filters, sorting and category endpoints work against the live database, with input validation and 33 automated tests. The API runs locally; hosting comes in Phase 9.</div></div><span class="badge done">Done</span></li>
     <li><span class="num">5</span><div class="body"><div class="title">Authentication and roles (JWT)</div><div class="note">Register and login with hashed passwords and signed tokens, separate customer and admin roles, and a securely seeded first admin. 52 automated tests, including forged and tampered tokens.</div></div><span class="badge done">Done</span></li>
-    <li><span class="num">6</span><div class="body"><div class="title">Cart, checkout, orders, customer website</div><div class="note">Up next: the shopping cart, safe checkout and the customer pages.</div></div><span class="badge now">Next</span></li>
-    <li><span class="num">7</span><div class="body"><div class="title">Admin dashboard</div></div><span class="badge todo">Pending</span></li>
+    <li><span class="num">6</span><div class="body"><div class="title">Cart, checkout, orders, customer website</div><div class="note">Database cart, one-transaction checkout with row locks so stock is never oversold, double-click protection, simulated UPI/card/cash-on-delivery payments, order history, and the customer website. 87 automated tests, including customers racing for the last unit.</div></div><span class="badge done">Done</span></li>
+    <li><span class="num">7</span><div class="body"><div class="title">Admin dashboard</div><div class="note">Up next: product and stock management, order status updates, revenue and low-stock reports.</div></div><span class="badge now">Next</span></li>
     <li><span class="num">8</span><div class="body"><div class="title">Testing (stock, concurrency, authorization)</div></div><span class="badge todo">Pending</span></li>
     <li><span class="num">9</span><div class="body"><div class="title">Deployment</div></div><span class="badge todo">Pending</span></li>
     <li><span class="num">10</span><div class="body"><div class="title">Report, diagrams and viva preparation</div></div><span class="badge todo">Pending</span></li>

@@ -22,6 +22,8 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 
 - [x] Phase 4: entities, repositories, DTOs, services, controllers for `GET /api/products`, `/api/products/{id}`, `/api/categories`; validation, JSON errors, CORS; 33 tests pass on real PostgreSQL 17 and the API was exercised live against Neon `dev` (`docs/api-documentation.md`)
 - [x] Phase 5: register, login, `/api/auth/me`, JWT, BCrypt, CUSTOMER/ADMIN roles, admin seeded from `ADMIN_EMAIL`/`ADMIN_PASSWORD`, JSON 401/403, CORS inside Spring Security; 52 tests pass (forged/expired/`alg:none`/edited-role tokens, role access, duplicate emails, SQL injection); verified live on Neon `dev` (one admin and one smoke-test customer exist there)
+- [x] Phase 6: cart, idempotent transactional checkout with ordered row locks, simulated payments, order history; V3 (shipping, payment methods) and V4 (colour placeholders) applied to Neon `dev`; customer website (catalog, product, cart, checkout, orders, login/register); 87 tests pass including a last-unit race, a 5-buyers-3-units race, triple-click idempotency and deadlock avoidance; full purchase walked through in a real browser against Neon `dev`
+- [x] `scripts/serve-frontend.mjs` serves the website locally on port 5500
 - [x] `scripts/run-local.ps1` starts the backend against the Neon `dev` database
 
 ## In progress
@@ -30,7 +32,6 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 
 ## Pending
 - [ ] Phase 3: Neon database (direct URL, `sslmode=require`, separate dev branch), Flyway, seed data (~15 products, 3 categories)
-- [ ] Phase 6: cart, checkout, orders, customer frontend (`api.js`, `ui.js`)
 - [ ] Phase 7: admin CRUD, order status, reports, admin frontend
 - [ ] Phase 8: testing, including the two-thread last-unit test
 - [ ] Phase 9: deployment (decide one service vs two)

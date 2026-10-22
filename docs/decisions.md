@@ -88,6 +88,21 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - **CORS** moved into the security filter chain so browser preflight requests are answered before authentication.
 - **Known limitations (accepted for an academic project):** there is no login rate limiting, no refresh tokens or logout list, and a token stays valid until it expires even if the account is disabled later (at most 2 hours). The token is kept in browser storage, so the frontend must escape user text (XSS), see CLAUDE.md.
 
+## D15. Cart and checkout (Phase 6, 2026-10-22)
+- **Database cart, login required.** There is no guest cart: "Add to cart" sends a visitor to login and back. This keeps one source of truth and avoids merging a browser cart into an account cart.
+- **Every cart change locks the user's cart row** (`SELECT ... FOR UPDATE`), so double clicks and two open tabs cannot create duplicate lines. The cart row is created with `INSERT ... ON CONFLICT DO NOTHING`, which is safe under races.
+- **Stock is checked twice:** when adding to the cart (friendly early error) and again inside checkout on locked rows (the real guarantee). The database `CHECK (stock_quantity >= 0)` is the last safety net.
+- **Checkout is one transaction** (`OrderPlacementService.place`): lock cart, check idempotency key, lock products in id order, validate, snapshot prices, simulated payment, save order, items and payment, reduce stock, empty cart. Any exception rolls all of it back.
+- **Locks in id order** prevent deadlocks when two customers buy overlapping products in different orders (tested).
+- **Idempotency:** the browser sends a random `Idempotency-Key` per attempt. The same key returns the same order (`200`) instead of a second one. A key whose attempt failed (declined payment, no stock) was rolled back, so it can be retried. A race between two requests with the same key is settled by the unique index, and `CheckoutService` returns the winning order.
+- **Prices are never accepted from the browser.** The checkout request has no prices, totals or items; extra fields are ignored (tested).
+- **Simulated payments** go through a `PaymentGateway` interface. The real build approves UPI and CARD; tests swap in a gateway that declines, proving a decline leaves no order, payment or stock change. COD orders stay `PENDING` until delivery (Phase 7). No card or UPI details are ever collected.
+- **Order lifecycle start:** UPI/CARD orders start `CONFIRMED` + `PAID`; COD orders start `PENDING` + `PENDING`.
+- **Order privacy:** order lookups always include the user id, so another customer's order id returns the same `404` as a missing order.
+- **Shipping details** (name, phone, address, city, PIN) are stored on the order (V3), validated for Indian formats.
+- **Featured sort** shows buyable products before sold-out ones (ordering added to the query, not to the count query).
+- **Frontend:** vanilla ES modules; one `api.js` for all HTTP, token in `localStorage` with its expiry, DOM built with `textContent`/`createElement` only (no `innerHTML`), images restricted to http(s) with a placeholder fallback, `next` redirect after login restricted to plain page names (no open redirect).
+
 ## Open
 - **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
 - **Low-stock threshold:** the seed uses stock 1 to 5 as "low"; confirm the value in Phase 7.

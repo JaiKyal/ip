@@ -32,6 +32,19 @@ public class ProductService {
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), pattern, '\\'));
         }
 
+        if (sort == ProductSort.FEATURED) {
+            // Featured: products that can be bought first, then by id. Spring's Sort cannot express
+            // "in stock first", so the order is added to the query itself (not to the count query).
+            spec = spec.and((root, query, cb) -> {
+                if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                    query.orderBy(
+                            cb.asc(cb.selectCase().when(cb.greaterThan(root.get("stockQuantity"), 0), 0).otherwise(1)),
+                            cb.asc(root.get("id")));
+                }
+                return null;
+            });
+            return PageResponse.from(products.findAll(spec, PageRequest.of(page, size)).map(ProductResponse::from));
+        }
         return PageResponse.from(
                 products.findAll(spec, PageRequest.of(page, size, sort.toSort())).map(ProductResponse::from));
     }

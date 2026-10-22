@@ -58,6 +58,22 @@ public class Product {
         // required by JPA
     }
 
+    /** Takes stock out for a sale. The caller must already hold the row lock (checkout does). */
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0 || quantity > stockQuantity) {
+            throw new IllegalStateException("Cannot take " + quantity + " from stock of " + stockQuantity);
+        }
+        stockQuantity -= quantity;
+    }
+
+    /** Puts stock back, for example when an order is cancelled. */
+    public void increaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        stockQuantity += quantity;
+    }
+
     public Long getId() {
         return id;
     }

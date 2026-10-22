@@ -92,5 +92,58 @@ Requires a token. Returns `{ "id", "fullName", "email", "role" }` for the user i
 ### GET /actuator/health
 `{ "status": "UP" }`. Used by the hosting platform to check the service is alive.
 
+## Cart (login required)
+
+The cart belongs to the user in the token. Prices are never sent by the browser; they are read from the database.
+Every cart response has this shape:
+
+```json
+{ "items": [ { "id": 7, "productId": 3, "name": "Smart Watch", "imageUrl": "https://...", "unitPrice": 2999.00,
+               "quantity": 2, "lineTotal": 5998.00, "stockQuantity": 5, "available": true } ],
+  "totalQuantity": 2, "subtotal": 5998.00, "hasUnavailableItems": false }
+```
+`available` is false when the product was hidden or its stock fell below the quantity in the cart.
+
+| Method and URL | Body | Result |
+|---|---|---|
+| `GET /api/cart` | | 200 cart (created empty on first use) |
+| `POST /api/cart/items` | `{ "productId": 3, "quantity": 1 }` (1 to 99) | 201 cart. Adding the same product again increases the quantity. |
+| `PATCH /api/cart/items/{itemId}` | `{ "quantity": 4 }` (1 to 99) | 200 cart |
+| `DELETE /api/cart/items/{itemId}` | | 200 cart |
+
+Errors: `400` invalid quantity, `404` unknown or hidden product, or an item that is not in *your* cart, `409` "Only N left in stock for X" or "X is out of stock".
+
+## Checkout (login required)
+
+### POST /api/checkout
+Headers: `Authorization: Bearer <token>` and `Idempotency-Key: <random 8 to 64 characters>` (the website uses a UUID per attempt).
+
+Request (no prices, no items: the server uses the cart and database prices):
+```json
+{ "shipping": { "name": "Asha Rao", "phone": "9876543210", "address": "12 MG Road, Indiranagar",
+                "city": "Bengaluru", "pincode": "560038" },
+  "paymentMethod": "UPI" }
+```
+`paymentMethod` is `UPI`, `CARD` (both simulated and approved instantly) or `COD` (cash on delivery).
+
+Response `201` (new order) or `200` (the same Idempotency-Key was already used, so the existing order is returned):
+```json
+{ "id": 1, "orderNumber": "ORD-20261022-9XEESU", "status": "CONFIRMED", "paymentStatus": "PAID", "paymentMethod": "UPI",
+  "subtotal": 7297.00, "totalAmount": 7297.00, "orderDate": "2026-10-22T14:32:10Z",
+  "shipping": { "name": "Asha Rao", "phone": "9876543210", "address": "12 MG Road, Indiranagar", "city": "Bengaluru", "pincode": "560038" },
+  "items": [ { "productId": 3, "name": "Smart Watch", "quantity": 2, "unitPrice": 2999.00, "lineTotal": 5998.00 } ],
+  "payment": { "reference": "SIM-8FE450BE44B64347", "status": "PAID", "simulated": true } }
+```
+UPI and CARD orders start `CONFIRMED` + `PAID`. COD orders start `PENDING` + `PENDING` with no payment record.
+
+Errors: `400` empty cart, missing or malformed Idempotency-Key, invalid shipping fields (field names listed), unknown payment method; `402` simulated payment declined (nothing is saved, stock and cart unchanged); `409` stock ran out or a product was hidden since it was added to the cart (nothing is saved).
+
+## Orders (login required, own orders only)
+
+| Method and URL | Result |
+|---|---|
+| `GET /api/orders/my-orders?page=0&size=10` | Paged list, newest first: `{ id, orderNumber, status, paymentStatus, paymentMethod, totalAmount, orderDate, itemCount }` |
+| `GET /api/orders/{orderId}` | One order, same shape as the checkout response. Another customer's order returns `404`, exactly like a missing one. |
+
 ## Planned (not built yet)
-Cart, checkout, orders, and the admin endpoints listed in `docs/architecture.md`.
+The admin endpoints listed in `docs/architecture.md`.

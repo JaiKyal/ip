@@ -3,8 +3,10 @@ package com.example.shoppingcart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.shoppingcart.support.ControllablePaymentGateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import org.junit.jupiter.api.AfterEach;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
@@ -68,6 +70,41 @@ public abstract class AbstractPostgresIntegrationTest {
         registry.add("app.jwt.secret", () -> TEST_JWT_SECRET);
         registry.add("app.admin.email", () -> TEST_ADMIN_EMAIL);
         registry.add("app.admin.password", () -> TEST_ADMIN_PASSWORD);
+    }
+
+    @Autowired
+    protected ControllablePaymentGateway paymentGateway;
+
+    /**
+     * Removes everything tests created (orders, carts, customers, "TEST-" products) so tests cannot affect each
+     * other. The seeded catalog and the seeded admin stay.
+     */
+    @AfterEach
+    void cleanUpTestData() {
+        paymentGateway.setDecline(false);
+        jdbc.update("DELETE FROM payments");
+        jdbc.update("DELETE FROM order_items");
+        jdbc.update("DELETE FROM orders");
+        jdbc.update("DELETE FROM cart_items");
+        jdbc.update("DELETE FROM carts");
+        jdbc.update("DELETE FROM products WHERE name LIKE 'TEST-%'");
+        jdbc.update("DELETE FROM users WHERE role = 'CUSTOMER'");
+    }
+
+    /** Inserts an active product named TEST-... in the first category and returns its id. */
+    protected long createProduct(String price, int stock) {
+        return jdbc.queryForObject(
+                "INSERT INTO products (name, description, price, stock_quantity, image_url, category_id) "
+                        + "VALUES (?, 'test product', ?::numeric, ?, 'https://placehold.co/600x400', (SELECT min(id) FROM categories)) RETURNING id",
+                Long.class, "TEST-" + UUID.randomUUID().toString().substring(0, 8), price, stock);
+    }
+
+    protected int stockOf(long productId) {
+        return jdbc.queryForObject("SELECT stock_quantity FROM products WHERE id = ?", Integer.class, productId);
+    }
+
+    protected long countRows(String table) {
+        return jdbc.queryForObject("SELECT count(*) FROM " + table, Long.class);
     }
 
     protected static String uniqueEmail() {

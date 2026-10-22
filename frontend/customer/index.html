@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cartly - Shop</title>
+  <meta name="description" content="Browse and buy products on Cartly, a Java Spring Boot shopping demo.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="container">
+    <section class="hero">
+      <h1>Everything you need, delivered</h1>
+      <p>Browse the catalog, add items to your cart and check out in a minute. This is a demo store: payments are simulated.</p>
+    </section>
+
+    <div class="toolbar">
+      <div class="chips" id="categories" role="group" aria-label="Categories"></div>
+      <label class="sort">Sort by
+        <select id="sort">
+          <option value="featured">Featured</option>
+          <option value="newest">Newest</option>
+          <option value="name">Name A-Z</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="price_desc">Price: high to low</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="result-count" class="result-count" aria-live="polite"></div>
+    <div id="products"></div>
+    <div id="pager" class="pager"></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="js/catalog.js"></script>
+</body>
+</html>

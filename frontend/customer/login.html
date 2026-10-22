@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in - Cartly</title>
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="container">
+    <div class="card auth-card">
+      <div class="tabs" role="tablist">
+        <button class="tab is-active" id="tab-login" type="button" role="tab" aria-selected="true">Log in</button>
+        <button class="tab" id="tab-register" type="button" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <div id="message" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field"><label for="login-email">Email</label><input id="login-email" type="email" autocomplete="email" required maxlength="255"></div>
+        <div class="field"><label for="login-password">Password</label><input id="login-password" type="password" autocomplete="current-password" required maxlength="72"></div>
+        <button class="btn btn-block" type="submit">Log in</button>
+      </form>
+
+      <form id="register-form" class="hidden" novalidate>
+        <div class="field"><label for="reg-name">Full name</label><input id="reg-name" autocomplete="name" required maxlength="120"></div>
+        <div class="field"><label for="reg-email">Email</label><input id="reg-email" type="email" autocomplete="email" required maxlength="255"></div>
+        <div class="field"><label for="reg-password">Password</label><input id="reg-password" type="password" autocomplete="new-password" required minlength="8" maxlength="72"><div class="field-hint">At least 8 characters</div></div>
+        <button class="btn btn-block" type="submit">Create account</button>
+      </form>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>
