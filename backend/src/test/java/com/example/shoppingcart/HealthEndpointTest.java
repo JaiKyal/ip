@@ -5,13 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
 
 class HealthEndpointTest extends AbstractPostgresIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
     void healthEndpointReportsUp() throws Exception {

@@ -23,6 +23,17 @@ Endpoints are added phase by phase; this file lists only what exists.
 
 **CORS.** Browsers may call `/api/**` only from the origins listed in `CORS_ALLOWED_ORIGINS`.
 
+**Authentication.** Log in (or register) to get a token, then send it on every protected request:
+`Authorization: Bearer <token>`. Tokens last 2 hours (`JWT_EXPIRY_MINUTES`). Roles are `CUSTOMER` and `ADMIN`.
+
+| Access | Endpoints |
+|---|---|
+| Public | `GET /api/products`, `GET /api/products/{id}`, `GET /api/categories`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /actuator/health` |
+| Any logged-in user | `GET /api/auth/me`, and every other endpoint not listed here |
+| Admin only | everything under `/api/admin/**` |
+
+Additional error statuses: **401** no token, or an invalid, expired or forged token; **403** logged in but the role is not allowed; **409** the email is already registered.
+
 ## Public endpoints (no login)
 
 ### GET /api/products
@@ -58,8 +69,28 @@ One active product (same shape as an item above). Errors: 404 if the product doe
 ### GET /api/categories
 All categories, sorted by name: `[ { "id": 1, "name": "Electronics", "description": "..." }, ... ]`
 
+### POST /api/auth/register
+Creates a customer account and logs them in. There is no role field: every new account is a `CUSTOMER`.
+
+Request: `{ "fullName": "Asha Rao", "email": "asha@example.com", "password": "at-least-8-chars" }`
+(`fullName` required, up to 120 characters; `email` valid, up to 255, stored lower-case; `password` 8 to 72 characters.)
+
+Response `201`:
+```json
+{ "token": "eyJhbGciOiJIUzI1NiJ9...", "tokenType": "Bearer", "expiresInSeconds": 7200,
+  "user": { "id": 2, "fullName": "Asha Rao", "email": "asha@example.com", "role": "CUSTOMER" } }
+```
+Errors: `400` with the names of the invalid fields (rejected values are never echoed), `409` email already registered (ignoring upper/lower case).
+
+### POST /api/auth/login
+Request: `{ "email": "asha@example.com", "password": "..." }`. Response `200`: same shape as register.
+Error `401` `"Invalid email or password"`. The message is identical for an unknown email, a wrong password and a disabled account, so the API does not reveal which emails exist.
+
+### GET /api/auth/me
+Requires a token. Returns `{ "id", "fullName", "email", "role" }` for the user in the token. Errors: `401`.
+
 ### GET /actuator/health
 `{ "status": "UP" }`. Used by the hosting platform to check the service is alive.
 
 ## Planned (not built yet)
-Authentication, cart, checkout, orders, and the admin endpoints listed in `docs/architecture.md`.
+Cart, checkout, orders, and the admin endpoints listed in `docs/architecture.md`.

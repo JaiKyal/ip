@@ -76,6 +76,18 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - **CORS** is configured with exact origins from `CORS_ALLOWED_ORIGINS`. In Phase 5 it moves into the Spring Security filter chain so preflight requests are not blocked by authentication.
 - **Tests run the whole app on a real PostgreSQL 17** (`AbstractPostgresIntegrationTest`): Flyway applies the real migrations and Hibernate's `ddl-auto=validate` checks every entity against them.
 
+## D14. Authentication and authorization (Phase 5, 2026-10-22)
+- **JWT signed with HS256**, using Spring Security's built-in resource-server support (Nimbus) instead of a third-party JWT library. The token holds the user id (subject), email, role, issuer `shoppingcart` and expiry (2 hours). Expired, forged, wrongly signed and `alg: none` tokens are rejected (tested).
+- **Secret handling:** `JWT_SECRET` has no default and must be 32+ characters, otherwise the app refuses to start. It lives only in `.env` or the host's environment variables.
+- **Passwords:** BCrypt (60-character hash). Registration accepts 8 to 72 characters because BCrypt only reads the first 72 bytes.
+- **Roles are never client-controlled.** The register request has no role field, so every new account is a `CUSTOMER`; the role in a token is covered by the signature, so editing it invalidates the token (tested).
+- **First admin:** created at startup by `AdminSeeder` from `ADMIN_EMAIL` / `ADMIN_PASSWORD`, only if no admin exists. The password is hashed at that moment, so no hash or password is in git, and no public endpoint can create an admin. Changing `ADMIN_PASSWORD` later does not change an existing admin.
+- **Login errors are identical** for an unknown email, a wrong password and a disabled account, and an unknown email still performs a BCrypt check, so neither the message nor the timing shows which emails exist. (Registration does reveal that an email is taken, via 409; that is normal for sign-up forms.)
+- **CSRF protection is off** because there are no cookies or sessions: the token travels in the `Authorization` header, which browsers do not attach automatically (D2).
+- **Authorization rules live in one place** (`SecurityConfig`): public browsing and auth endpoints, `/api/admin/**` for ADMIN, everything else needs a login. Unknown URLs return 401 to visitors instead of revealing which routes exist.
+- **CORS** moved into the security filter chain so browser preflight requests are answered before authentication.
+- **Known limitations (accepted for an academic project):** there is no login rate limiting, no refresh tokens or logout list, and a token stays valid until it expires even if the account is disabled later (at most 2 hours). The token is kept in browser storage, so the frontend must escape user text (XSS), see CLAUDE.md.
+
 ## Open
 - **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
 - **Low-stock threshold:** the seed uses stock 1 to 5 as "low"; confirm the value in Phase 7.

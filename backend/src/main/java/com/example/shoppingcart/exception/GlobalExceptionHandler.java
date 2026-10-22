@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -29,6 +31,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> badRequest(BadRequestException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> conflict(ConflictException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<ApiError> loginFailed(AuthenticationFailedException ex, HttpServletRequest request) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+    }
+
+    /** A request body that failed validation: reports which fields were wrong, never the rejected values. */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> invalidBody(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .sorted()
+                .collect(Collectors.joining("; "));
+        return build(HttpStatus.BAD_REQUEST, message.isEmpty() ? "Invalid request" : message, request);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> unreadableBody(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Request body is missing or is not valid JSON", request);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -52,9 +79,7 @@ public class GlobalExceptionHandler {
         org.springframework.web.HttpRequestMethodNotSupportedException.class,
         org.springframework.web.HttpMediaTypeNotSupportedException.class,
         org.springframework.web.bind.MissingServletRequestParameterException.class,
-        org.springframework.web.bind.MethodArgumentNotValidException.class,
-        org.springframework.web.method.annotation.HandlerMethodValidationException.class,
-        org.springframework.http.converter.HttpMessageNotReadableException.class
+        org.springframework.web.method.annotation.HandlerMethodValidationException.class
     })
     public ResponseEntity<ApiError> framework(Exception ex, HttpServletRequest request) {
         if (ex instanceof ErrorResponse errorResponse) {

@@ -21,6 +21,7 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [x] Static progress tracker page in `frontend/` (not yet deployed on Vercel)
 
 - [x] Phase 4: entities, repositories, DTOs, services, controllers for `GET /api/products`, `/api/products/{id}`, `/api/categories`; validation, JSON errors, CORS; 33 tests pass on real PostgreSQL 17 and the API was exercised live against Neon `dev` (`docs/api-documentation.md`)
+- [x] Phase 5: register, login, `/api/auth/me`, JWT, BCrypt, CUSTOMER/ADMIN roles, admin seeded from `ADMIN_EMAIL`/`ADMIN_PASSWORD`, JSON 401/403, CORS inside Spring Security; 52 tests pass (forged/expired/`alg:none`/edited-role tokens, role access, duplicate emails, SQL injection); verified live on Neon `dev` (one admin and one smoke-test customer exist there)
 - [x] `scripts/run-local.ps1` starts the backend against the Neon `dev` database
 
 ## In progress
@@ -29,7 +30,6 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 
 ## Pending
 - [ ] Phase 3: Neon database (direct URL, `sslmode=require`, separate dev branch), Flyway, seed data (~15 products, 3 categories)
-- [ ] Phase 5: JWT auth, roles, admin seeded from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 - [ ] Phase 6: cart, checkout, orders, customer frontend (`api.js`, `ui.js`)
 - [ ] Phase 7: admin CRUD, order status, reports, admin frontend
 - [ ] Phase 8: testing, including the two-thread last-unit test

@@ -18,6 +18,7 @@ Get-Content -LiteralPath $envFile | ForEach-Object {
     }
 }
 if ($env:DB_URL -match '^<' -or $env:DB_PASSWORD -match '^<') { throw "DB_* in .env are still placeholders. Run .\scripts\set-neon-env.ps1." }
+if (-not $env:JWT_SECRET -or $env:JWT_SECRET -match '^<' -or $env:JWT_SECRET.Length -lt 32) { throw "JWT_SECRET in .env must be a random string of 32+ characters." }
 
 if (-not $env:JAVA_HOME) { $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.10.7-hotspot' }
 $env:SPRING_PROFILES_ACTIVE = 'local'

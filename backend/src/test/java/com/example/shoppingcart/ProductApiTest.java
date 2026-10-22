@@ -9,19 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Exercises the public product API end to end against the seeded demo catalog (migration V2). */
 class ProductApiTest extends AbstractPostgresIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private JdbcTemplate jdbc;
 
     @Test
     void firstPageHasTwelveOfFifteenProducts() throws Exception {
@@ -154,12 +145,8 @@ class ProductApiTest extends AbstractPostgresIntegrationTest {
     }
 
     @Test
-    void unknownUrlIs404JsonAndWrongMethodIs405() throws Exception {
-        mockMvc.perform(get("/api/does-not-exist"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
+    void productsCannotBeChangedWithoutLoggingIn() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/products/1"))
-                .andExpect(status().isMethodNotAllowed())
-                .andExpect(jsonPath("$.status").value(405));
+                .andExpect(status().isUnauthorized());
     }
 }
