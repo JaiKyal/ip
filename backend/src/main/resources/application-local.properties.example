@@ -1,8 +1,6 @@
 # Template for application-local.properties (which is git-ignored).
-# Copy this file to application-local.properties. It only references environment variables,
-# so no secrets belong in either file.
+# Copy this file to application-local.properties. Activate with: $env:SPRING_PROFILES_ACTIVE = "local"
+# DB_URL, DB_USERNAME and DB_PASSWORD come from environment variables (scripts/run-local.ps1 loads .env),
+# so no secrets belong in either file. Put machine-specific overrides here, for example:
 
-spring.flyway.enabled=true
-spring.flyway.url=${DB_URL}
-spring.flyway.user=${DB_USERNAME}
-spring.flyway.password=${DB_PASSWORD}
+logging.level.com.example.shoppingcart=DEBUG

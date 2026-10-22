@@ -20,13 +20,15 @@ products -> register/login -> cart -> checkout -> my orders -> admin product CRU
 - [x] Deployment shape chosen: two sites, frontend separate from the API, with CORS (decisions.md D9)
 - [x] Static progress tracker page in `frontend/` (not yet deployed on Vercel)
 
+- [x] Phase 4: entities, repositories, DTOs, services, controllers for `GET /api/products`, `/api/products/{id}`, `/api/categories`; validation, JSON errors, CORS; 33 tests pass on real PostgreSQL 17 and the API was exercised live against Neon `dev` (`docs/api-documentation.md`)
+- [x] `scripts/run-local.ps1` starts the backend against the Neon `dev` database
+
 ## In progress
 - [x] Phase 3: Neon project, `dev` branch, `.env` filled (git-ignored), V1 + V2 migrations applied and verified on Neon `dev` (8 tables, 3 categories, 15 products); 14 migration tests pass on PostgreSQL 17
 - [ ] Phase 2 leftover: build the Dockerfile locally (needs Docker Desktop; untested)
 
 ## Pending
 - [ ] Phase 3: Neon database (direct URL, `sslmode=require`, separate dev branch), Flyway, seed data (~15 products, 3 categories)
-- [ ] Phase 4: entities, repositories, DTOs, public product API
 - [ ] Phase 5: JWT auth, roles, admin seeded from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 - [ ] Phase 6: cart, checkout, orders, customer frontend (`api.js`, `ui.js`)
 - [ ] Phase 7: admin CRUD, order status, reports, admin frontend

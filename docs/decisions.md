@@ -64,6 +64,18 @@ Each entry: what we chose, why, and what we gave up. Use these as viva answers.
 - **Migrations are applied with the Flyway Maven plugin** (`./mvnw flyway:info flyway:migrate`, connection from `FLYWAY_URL`, `FLYWAY_USER`, `FLYWAY_PASSWORD`) because the app has no JDBC starter yet, so Spring Boot does not run Flyway at startup. Once JPA is added in Phase 4 the app will migrate on startup as well.
 - **Version gap:** Neon runs PostgreSQL 18; Flyway 11.7.2 (managed by Boot 3.5.16) is tested up to 17 and prints a warning but works. The tests use PostgreSQL 17.
 
+## D13. Public product API design (Phase 4, 2026-10-22)
+- **DTOs only.** Controllers return records (`ProductResponse`, `CategoryResponse`, `PageResponse`), never entities. The public product JSON leaves out `active`, timestamps and anything internal.
+- **Search with JPA Specifications** instead of one big query with optional parameters. A `:param is null` pattern makes PostgreSQL fail on untyped nulls; Specifications add a filter only when the client sent one.
+- **Search text is escaped** so `%` and `_` match literally, and all values are bound as parameters, so SQL injection is not possible (tested).
+- **Sort is a whitelist** (`featured`, `newest`, `name`, `price_asc`, `price_desc`). Clients cannot sort by arbitrary columns.
+- **No N+1 queries.** The repository loads the category in the same query (`@EntityGraph`), and `open-in-view` is off so lazy loading cannot leak into the web layer.
+- **Page size is capped at 50**, so one request cannot dump the table.
+- **One error shape** (`ApiError`) for every failure, built in one `@RestControllerAdvice`; unexpected errors return a generic message and are logged server-side only.
+- **Inactive products** return 404 on the detail endpoint, the same as a missing product, so deactivated items are not revealed.
+- **CORS** is configured with exact origins from `CORS_ALLOWED_ORIGINS`. In Phase 5 it moves into the Spring Security filter chain so preflight requests are not blocked by authentication.
+- **Tests run the whole app on a real PostgreSQL 17** (`AbstractPostgresIntegrationTest`): Flyway applies the real migrations and Hibernate's `ddl-auto=validate` checks every entity against them.
+
 ## Open
 - **Frontend host in Phase 9:** Vercel or Render Static (both fit D9).
 - **Low-stock threshold:** the seed uses stock 1 to 5 as "low"; confirm the value in Phase 7.
